@@ -9,9 +9,9 @@
 // 3. Paste the Web App URL below
 // 4. Set USE_GOOGLE_SHEETS to true
 const CONFIG = {
-  GOOGLE_SCRIPT_URL: '', // Add your Google Apps Script Web App URL here
+  GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwG3Y65nwZyr1RwonwdU-qzo5GolN2vcQeoXMCckHmVWrC2i8uoh9sGVplzA9eYN4DLEQ/exec', // Add your Google Apps Script Web App URL here
   SPREADSHEET_ID: '',     // Optional: Your Spreadsheet ID for reference
-  USE_GOOGLE_SHEETS: false // Set to true when URLs are configured
+  USE_GOOGLE_SHEETS: true // Set to true when URLs are configured
 };
 
 // ============================================
