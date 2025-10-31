@@ -1,90 +1,568 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MediCare Hospital Management</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script defer src="script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Hospital - Reception Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="sidebar">
-    <h2 class="logo">🏥 MediCare</h2>
-    <ul class="menu">
-      <li class="active" data-section="dashboard">Dashboard</li>
-      <li data-section="patients">Patients</li>
-      <li data-section="doctors">Doctors</li>
-      <li data-section="appointments">Appointments</li>
-      <li>Settings</li>
-    </ul>
-  </div>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-hospital-alt logo-icon"></i>
+            <h2>MediCare Hospital</h2>
+        </div>
 
-  <div class="main">
-    <nav class="navbar">
-      <h3 id="pageTitle">Dashboard</h3>
-      <input type="search" id="search" placeholder="Search patients, doctors..." />
-    </nav>
+        <div class="user-profile">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <h4>Reception Desk</h4>
+                <p id="currentDateTime"></p>
+            </div>
+        </div>
 
-    <section id="dashboard" class="section active">
-      <div class="cards">
-        <div class="card bg-blue"><h4>Patients</h4><p id="totalPatients">0</p></div>
-        <div class="card bg-green"><h4>Doctors</h4><p id="totalDoctors">0</p></div>
-        <div class="card bg-orange"><h4>Appointments</h4><p id="totalAppointments">0</p></div>
-      </div>
-    </section>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-view="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-view="patients">
+                <i class="fas fa-users"></i>
+                <span>Patients</span>
+            </a>
+            <a href="#" class="nav-item" data-view="appointments">
+                <i class="fas fa-calendar-check"></i>
+                <span>Appointments</span>
+            </a>
+            <a href="#" class="nav-item" data-view="doctors">
+                <i class="fas fa-user-md"></i>
+                <span>Doctors</span>
+            </a>
+            <a href="#" class="nav-item" data-view="departments">
+                <i class="fas fa-building"></i>
+                <span>Departments</span>
+            </a>
+            <a href="#" class="nav-item" data-view="schedule">
+                <i class="fas fa-clock"></i>
+                <span>Schedule</span>
+            </a>
+            <a href="#" class="nav-item" data-view="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
 
-    <section id="patients" class="section">
-      <h4>Patients</h4>
-      <table class="table table-striped" id="patientsTable">
-        <thead><tr><th>ID</th><th>Name</th><th>Gender</th><th>Age</th><th>Phone</th><th>Department</th></tr></thead>
-        <tbody></tbody>
-      </table>
+        <div class="sidebar-footer">
+            <div class="db-status">
+                <span class="status-dot status-connected"></span>
+                <span id="storageStatus">Using Google Sheets</span>
+            </div>
+        </div>
+    </aside>
 
-      <h5>Add Patient</h5>
-      <form id="patientForm">
-        <input type="text" id="pName" placeholder="Full Name" required />
-        <input type="text" id="pGender" placeholder="Gender" required />
-        <input type="number" id="pAge" placeholder="Age" required />
-        <input type="text" id="pPhone" placeholder="Phone" required />
-        <input type="text" id="pDept" placeholder="Department" required />
-        <button type="submit" class="btn btn-primary">Add</button>
-      </form>
-    </section>
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search patients, doctors..." id="globalSearch">
+                </div>
+                <button class="icon-btn" id="darkModeToggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon" id="darkModeIcon"></i>
+                </button>
+                <button class="icon-btn notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </button>
+                <div class="user-menu">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <section id="doctors" class="section">
-      <h4>Doctors</h4>
-      <table class="table table-striped" id="doctorsTable">
-        <thead><tr><th>ID</th><th>Name</th><th>Specialization</th><th>Phone</th></tr></thead>
-        <tbody></tbody>
-      </table>
+        <!-- Content Container -->
+        <div class="content-container">
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view-content active">
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card" style="background: var(--color-bg-1);">
+                        <div class="stat-icon" style="background: rgba(37, 99, 235, 0.2); color: #2563EB;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="totalPatients">0</h3>
+                            <p>Total Patients</p>
+                            <span class="stat-change positive"><i class="fas fa-arrow-up"></i> 12% from last month</span>
+                        </div>
+                    </div>
 
-      <h5>Add Doctor</h5>
-      <form id="doctorForm">
-        <input type="text" id="dName" placeholder="Full Name" required />
-        <input type="text" id="dSpec" placeholder="Specialization" required />
-        <input type="text" id="dPhone" placeholder="Phone" required />
-        <button type="submit" class="btn btn-primary">Add</button>
-      </form>
-    </section>
+                    <div class="stat-card" style="background: var(--color-bg-3);">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.2); color: #10B981;">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="todayAppointments">0</h3>
+                            <p>Today's Appointments</p>
+                            <span class="stat-change positive"><i class="fas fa-arrow-up"></i> 8 scheduled</span>
+                        </div>
+                    </div>
 
-    <section id="appointments" class="section">
-      <h4>Appointments</h4>
-      <table class="table table-striped" id="appointmentsTable">
-        <thead><tr><th>ID</th><th>Patient ID</th><th>Doctor ID</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
-        <tbody></tbody>
-      </table>
+                    <div class="stat-card" style="background: var(--color-bg-6);">
+                        <div class="stat-icon" style="background: rgba(249, 115, 22, 0.2); color: #F97316;">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="activeDoctors">0</h3>
+                            <p>Active Doctors</p>
+                            <span class="stat-change">All available</span>
+                        </div>
+                    </div>
 
-      <h5>Schedule Appointment</h5>
-      <form id="appointmentForm">
-        <input type="text" id="aPatientId" placeholder="Patient ID" required />
-        <input type="text" id="aDoctorId" placeholder="Doctor ID" required />
-        <input type="date" id="aDate" required />
-        <input type="time" id="aTime" required />
-        <input type="text" id="aStatus" placeholder="Status (e.g., Scheduled)" required />
-        <button type="submit" class="btn btn-primary">Schedule</button>
-      </form>
-    </section>
-  </div>
+                    <div class="stat-card" style="background: var(--color-bg-5);">
+                        <div class="stat-icon" style="background: rgba(147, 51, 234, 0.2); color: #9333EA;">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="totalDepartments">0</h3>
+                            <p>Departments</p>
+                            <span class="stat-change">6 specializations</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Patient Overview by Age Groups</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="ageChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Patient Overview by Department</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="departmentChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card chart-wide">
+                        <div class="chart-header">
+                            <h3>Weekly Appointments Trend</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card chart-wide">
+                        <div class="chart-header">
+                            <h3>Monthly Revenue Analysis</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <div class="section-header">
+                        <h3>Recent Appointments</h3>
+                        <button class="btn btn-secondary" onclick="showView('appointments')">View All</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Doctor</th>
+                                    <th>Treatment</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentAppointmentsTable">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patients View -->
+            <div id="patientsView" class="view-content">
+                <div class="view-header">
+                    <h2>Patients Management</h2>
+                    <button class="btn btn-primary" onclick="openAddPatientModal()">
+                        <i class="fas fa-plus"></i> Add Patient
+                    </button>
+                </div>
+
+                <div class="filters-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search by name or ID..." id="patientSearch">
+                    </div>
+                    <select class="filter-select" id="patientStatusFilter">
+                        <option value="all">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="New Patient">New Patient</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('patients', 'patient_id')">Patient ID <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable('patients', 'first_name')">Full Name <i class="fas fa-sort"></i></th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Phone</th>
+                                <th>Blood Group</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientsTable">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="patientsPagination"></div>
+            </div>
+
+            <!-- Appointments View -->
+            <div id="appointmentsView" class="view-content">
+                <div class="view-header">
+                    <h2>Appointments Management</h2>
+                    <button class="btn btn-primary" onclick="openAddAppointmentModal()">
+                        <i class="fas fa-plus"></i> New Appointment
+                    </button>
+                </div>
+
+                <div class="filters-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search appointments..." id="appointmentSearch">
+                    </div>
+                    <select class="filter-select" id="appointmentStatusFilter">
+                        <option value="all">All Status</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <select class="filter-select" id="appointmentDoctorFilter">
+                        <option value="all">All Doctors</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Appt ID</th>
+                                <th>Patient Name</th>
+                                <th>Doctor Name</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Treatment</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointmentsTable">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="appointmentsPagination"></div>
+            </div>
+
+            <!-- Doctors View -->
+            <div id="doctorsView" class="view-content">
+                <div class="view-header">
+                    <h2>Doctors Directory</h2>
+                    <button class="btn btn-primary" onclick="openAddDoctorModal()">
+                        <i class="fas fa-plus"></i> Add Doctor
+                    </button>
+                </div>
+
+                <div class="doctors-grid" id="doctorsGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Departments View -->
+            <div id="departmentsView" class="view-content">
+                <div class="view-header">
+                    <h2>Hospital Departments</h2>
+                </div>
+
+                <div class="departments-grid" id="departmentsGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Schedule View -->
+            <div id="scheduleView" class="view-content">
+                <div class="view-header">
+                    <h2>Doctor Schedule</h2>
+                    <div class="schedule-controls">
+                        <button class="btn btn-secondary" onclick="changeWeek(-1)">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <span id="scheduleWeek">Week View</span>
+                        <button class="btn btn-secondary" onclick="changeWeek(1)">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="schedule-container" id="scheduleContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settingsView" class="view-content">
+                <div class="view-header">
+                    <h2>Settings &amp; Configuration</h2>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-card">
+                        <h3><i class="fas fa-cloud"></i> Google Sheets Integration</h3>
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>Google Apps Script URL</label>
+                                <input type="text" class="form-control" id="googleScriptUrl" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec">
+                            </div>
+                            <div class="form-group">
+                                <label>Connection Status</label>
+                                <div class="status-badge" id="sheetsConnectionStatus">
+                                    <span class="status-dot"></span> <span id="sheetsStatusText">Not Configured</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="testGoogleSheetsConnection()">Test Connection</button>
+                                <button class="btn btn-secondary" onclick="syncFromSheets()" style="margin-left: 8px;">Sync Data</button>
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Configure Google Sheets integration to store data persistently. Create a Google Apps Script Web App and paste the URL above. All data will automatically sync when configured.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3><i class="fas fa-database"></i> MySQL Schema Reference</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Host</label>
+                                <input type="text" class="form-control" value="localhost" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Port</label>
+                                <input type="text" class="form-control" value="3306" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Database Name</label>
+                                <input type="text" class="form-control" value="hospital_db" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Current Storage</label>
+                                <div class="status-badge status-info">
+                                    <span class="status-dot"></span> Google Sheets
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            <p>MySQL Schema Reference - This application uses Google Sheets for data storage. MySQL integration available for production deployment.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3><i class="fas fa-sliders-h"></i> Application Settings</h3>
+                        <div class="form-group">
+                            <label>Hospital Name</label>
+                            <input type="text" class="form-control" value="MediCare Hospital">
+                        </div>
+                        <div class="form-group">
+                            <label>Records Per Page</label>
+                            <select class="form-control">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Patient Detail Modal -->
+    <div id="patientDetailModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Patient Details</h2>
+                <button class="modal-close" onclick="closeModal('patientDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="patientDetailContent">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Patient Modal -->
+    <div id="addPatientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Patient</h2>
+                <button class="modal-close" onclick="closeModal('addPatientModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addPatientForm" onsubmit="handleAddPatient(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>First Name *</label>
+                            <input type="text" class="form-control" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name *</label>
+                            <input type="text" class="form-control" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Age *</label>
+                            <input type="number" class="form-control" name="age" min="1" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender *</label>
+                            <select class="form-control" name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="O">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone *</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Blood Group *</label>
+                            <select class="form-control" name="blood_group" required>
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Address *</label>
+                            <textarea class="form-control" name="address" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addPatientModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Patient</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Appointment Modal -->
+    <div id="addAppointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule New Appointment</h2>
+                <button class="modal-close" onclick="closeModal('addAppointmentModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addAppointmentForm" onsubmit="handleAddAppointment(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Patient *</label>
+                            <select class="form-control" name="patient_id" required id="appointmentPatientSelect">
+                                <option value="">Select Patient</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Doctor *</label>
+                            <select class="form-control" name="doctor_id" required id="appointmentDoctorSelect">
+                                <option value="">Select Doctor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date *</label>
+                            <input type="date" class="form-control" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Time *</label>
+                            <input type="time" class="form-control" name="time" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Treatment Type *</label>
+                            <select class="form-control" name="treatment" required>
+                                <option value="">Select Treatment</option>
+                                <option value="General Checkup">General Checkup</option>
+                                <option value="Follow-up">Follow-up</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Consultation">Consultation</option>
+                                <option value="Surgery">Surgery</option>
+                                <option value="Therapy">Therapy</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Notes</label>
+                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addAppointmentModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
